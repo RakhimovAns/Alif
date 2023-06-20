@@ -2,7 +2,10 @@ package main
 
 import (
 	"context"
-	"github.com/RakhimovAns/Alif/cmd/server"
+	"github.com/RakhimovAns/Alif/cmd/app"
+	"github.com/RakhimovAns/Alif/pkg/handlers"
+	"github.com/RakhimovAns/Alif/pkg/postgresql"
+	"github.com/RakhimovAns/Alif/pkg/service"
 	"github.com/gorilla/mux"
 	"github.com/jackc/pgx/v4/pgxpool"
 	"log"
@@ -28,7 +31,11 @@ func execute(host string, port string, dsn string) (err error) {
 	}
 	defer pool.Close()
 	router := mux.NewRouter()
-	server := server.NewServer(router)
+	CustomerSQLService := postgresql.NewCustomerService(pool)
+	CustomerService := service.NewCustomerService(CustomerSQLService)
+	server := app.NewServer(router, CustomerService)
+	Server := handlers.NewServer(server)
+	Server.Init()
 	srv := &http.Server{
 		Addr:    net.JoinHostPort(host, port),
 		Handler: server,
