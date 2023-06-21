@@ -16,6 +16,7 @@ import (
 )
 
 var Pool *pgxpool.Pool
+var RequestBod *types.RequestBody
 
 func Auth(channel chan *string) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
@@ -23,12 +24,13 @@ func Auth(channel chan *string) func(http.Handler) http.Handler {
 			auth := request.Header.Get("X-UserId")
 			XDigest := request.Header.Get("X-Digest")
 			if auth == "" && XDigest == "" {
-				requestBody := Parse(request)
-				if requestBody.CustomerData["login"] != "" && requestBody.CustomerData["password"] != "" {
+				RequestBod = Parse(request)
+				password := RequestBod.CustomerData["password"]
+				login := RequestBod.CustomerData["login"]
+				if login != "" && password != "" {
 					var id string
 					var hash string
-					password := requestBody.CustomerData["password"]
-					login := requestBody.CustomerData["login"]
+
 					err := Pool.QueryRow(request.Context(), `
     select id, password from customers where login=$1
 `, login).Scan(&id, &hash)
@@ -54,20 +56,18 @@ func Auth(channel chan *string) func(http.Handler) http.Handler {
 					return
 				}
 			}
+
 			bearerToken := strings.Split(auth, " ")
-			if bearerToken[0] != "Bearer" {
+			if len(bearerToken) != 1 {
 				http.Error(writer, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 				return
 			}
-			if len(bearerToken) != 2 {
-				http.Error(writer, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
-				return
-			}
-			token, id, err := ParseToken(bearerToken[1])
+			token, id, err := ParseToken(bearerToken[0])
 			if err != nil {
 				http.Error(writer, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 				return
 			}
+
 			if token.Valid {
 				requestBody := Parse(request)
 				Digest, err := pkg.CalculateHMACSHA1(requestBody.AuthData, "Ansar")

@@ -18,6 +18,7 @@ var channel = make(chan *string, 4)
 const (
 	GET    = "GET"
 	POST   = "POST"
+	PUT    = "PUT"
 	DELETE = "DELETE"
 )
 
@@ -30,4 +31,7 @@ func (s *Server) Init() {
 	SubRoutineWallets.Use(service.Auth(channel))
 	SubRoutineWallets.HandleFunc("/create", s.HandleCreateWallet).Methods(POST)
 	SubRoutineWallets.HandleFunc("/check", s.HandleCheckWallet).Methods(GET)
+	SubRoutineWallets.HandleFunc("/deposit", s.HandleDepositWallet).Methods(PUT)
+	SubRoutineWallets.HandleFunc("/balance", s.HandleGetBalance).Methods(GET)
+	SubRoutineWallets.HandleFunc("/actions", s.HandleGetActions).Methods(GET)
 }

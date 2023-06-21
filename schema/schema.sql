@@ -1,4 +1,4 @@
-
+drop table wallets,customers,roles,actions;
 CREATE TABLE roles(
                       id bigserial primary key ,
                       name text not null
@@ -14,7 +14,7 @@ CREATE TABLE customers(
 
 CREATE TABLE wallets(
                         id bigserial primary key ,
-                        balance integer not null check ( balance>0 ),
+                        balance integer not null check ( balance>=0 ),
                         customer_id text not null references customers(id),
                         role_id integer not null references roles(id)
 
@@ -39,3 +39,9 @@ CREATE TRIGGER role_balance_trigger
     FOR EACH ROW
 EXECUTE FUNCTION check_role_balance();
 
+
+CREATE TABLE actions(
+ wallet_id integer not null  unique,
+ amount integer not null default 0,
+ sum integer not null default 0
+);
