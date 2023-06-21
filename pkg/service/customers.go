@@ -18,6 +18,9 @@ func (s *CustomerService) Register(ctx context.Context, customer *types.Customer
 	return s.service.Register(ctx, customer)
 }
 
-func (s *CustomerService) Login(ctx context.Context, login string, password string) (string, error) {
-	return s.service.Login(ctx, login, password)
+func (s *CustomerService) Login(ctx context.Context, login string, password string, requestBody map[string]string) (string, string, error) {
+	return s.service.Login(ctx, login, password, requestBody)
+}
+func (s *CustomerService) GetId(ctx context.Context, customer *types.Customer) (string, error) {
+	return s.service.GetID(ctx, customer)
 }

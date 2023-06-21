@@ -25,6 +25,7 @@ func main() {
 func execute(host string, port string, dsn string) (err error) {
 	connectCtx, _ := context.WithTimeout(context.Background(), time.Second*5)
 	pool, err := pgxpool.Connect(connectCtx, dsn)
+	service.Pool = pool
 	if err != nil {
 		log.Println(err)
 		return
@@ -33,7 +34,9 @@ func execute(host string, port string, dsn string) (err error) {
 	router := mux.NewRouter()
 	CustomerSQLService := postgresql.NewCustomerService(pool)
 	CustomerService := service.NewCustomerService(CustomerSQLService)
-	server := app.NewServer(router, CustomerService)
+	WalletSQLService := postgresql.NewWalletService(pool)
+	WalletService := service.NewWalletService(WalletSQLService)
+	server := app.NewServer(router, CustomerService, WalletService)
 	Server := handlers.NewServer(server)
 	Server.Init()
 	srv := &http.Server{

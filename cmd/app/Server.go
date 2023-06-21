@@ -9,10 +9,11 @@ import (
 type Server struct {
 	Mux             *mux.Router
 	CustomerService *service.CustomerService
+	WalletService   *service.WalletService
 }
 
-func NewServer(mux *mux.Router, customerSvc *service.CustomerService) *Server {
-	return &Server{Mux: mux, CustomerService: customerSvc}
+func NewServer(mux *mux.Router, customerSvc *service.CustomerService, walletSvc *service.WalletService) *Server {
+	return &Server{Mux: mux, CustomerService: customerSvc, WalletService: walletSvc}
 }
 
 func (s *Server) ServeHTTP(writer http.ResponseWriter, request *http.Request) {

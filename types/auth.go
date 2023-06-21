@@ -6,3 +6,7 @@ type TokenClaim struct {
 	jwt.StandardClaims
 	UserID string `json:"userid"`
 }
+type RequestBody struct {
+	AuthData     map[string]string `json:"authData"`
+	CustomerData map[string]string `json:"CustomerData"`
+}
